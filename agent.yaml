@@ -1,0 +1,85 @@
+# IlaajSaathi - agent manifest
+# NOTE: field names follow a common agent-manifest layout. Before submitting, match them
+# exactly to the official "aiKart Agent Manifest Guide (PDF)" linked in the hackathon brief.
+name: ilaajsaathi
+display_name: IlaajSaathi
+version: 1.0.0
+description: >
+  Safe, affordable treatment agent for Bharat. A patient describes their health problem, location and
+  budget in Hindi or English. Emergencies are routed to the nearest hospital with the facility the
+  symptoms need (cath lab, stroke care, trauma centre), with 108 and directions.
+  Otherwise it checks Ayushman Bharat eligibility, free teleconsults, nearest government hospitals,
+  government vs private costs and generic medicines, then creates a doctor summary PDF and a reminder.
+category: HealthTech
+tags: [healthtech, emergency-routing, openstreetmap, gemini, ayushman-bharat, hindi, voice, affordable-care, agentic]
+authors:
+  - name: Prashant Yadav
+deployment:
+  url: https://ilaajsaathi.onrender.com
+  invoke: https://ilaajsaathi.onrender.com/invoke
+  health: https://ilaajsaathi.onrender.com/api/health
+
+runtime:
+  type: docker
+  dockerfile: ./Dockerfile
+  port: 8000
+  healthcheck: /api/health
+
+endpoints:
+  - name: invoke
+    method: POST
+    path: /invoke
+    description: Main agent endpoint
+    request:
+      content_type: application/json
+      schema:
+        input: {type: string, required: true, description: "Patient's problem, city and budget (Hindi/English)"}
+        session_id: {type: string, required: false, description: "Pass back to continue a conversation"}
+        lat: {type: number, required: false, description: "Patient latitude (device location)"}
+        lng: {type: number, required: false, description: "Patient longitude (device location)"}
+        image_b64: {type: string, required: false, description: "Prescription photo, base64 (needs LLM key)"}
+    response:
+      schema:
+        output: {type: string, description: "Reply to the patient"}
+        status: {type: string, enum: [need_info, plan_ready, urgent]}
+        need: {type: string, description: "location or budget when the agent needs more info"}
+        plan: {type: object, description: "Structured results from every tool"}
+        trace: {type: array, description: "Understand / reason / plan / tool / act / deliver steps"}
+        session_id: {type: string}
+  - name: chat
+    method: POST
+    path: /api/chat
+    description: Same agent, used by the web UI (field 'message' instead of 'input')
+
+environment:
+  - name: GOOGLE_MAPS_API_KEY
+    required: false
+    description: Recommended - Places API (New), Geocoding API and Routes API for nearest hospitals and travel time
+  - name: ILAAJ_USE_OSM
+    required: false
+    description: "1 (default) uses free OpenStreetMap as fallback; 0 = offline data only"
+  - name: ANTHROPIC_API_KEY
+    required: false
+    description: Optional - enables LLM understanding, planning and Hindi/Hinglish replies
+  - name: OPENAI_API_KEY
+    required: false
+    description: Optional alternative (any OpenAI-compatible API)
+  - name: OPENAI_BASE_URL
+    required: false
+  - name: LLM_MODEL
+    required: false
+
+tools:
+  - red_flag_check
+  - route_emergency
+  - teleconsult_options
+  - check_pmjay_eligibility
+  - find_hospitals
+  - estimate_costs
+  - find_generics
+  - second_opinion_questions
+  - make_doctor_summary
+  - create_reminder
+
+example:
+  input: "Papa ko dil ki blockage hai, angioplasty ke 3 lakh bataye. Delhi, budget 30000."

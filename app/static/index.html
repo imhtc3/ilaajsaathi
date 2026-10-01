@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IlaajSaathi - affordable treatment agent</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1F3A5F; --ink-soft:#4A6283; --paper:#F7FAF9; --sheet:#FFFFFF; --rule:#D9E3E6;
+  --green:#2E6B5E; --green-soft:#E3F0EC; --turmeric:#D99A1E; --turmeric-soft:#FBF1DC;
+  --red:#B3261E; --red-soft:#FBE7E5; --text:#1C2733; --muted:#5D6B78;
+  --hand:'Kalam', 'Segoe Print', cursive; --sans:'Mukta', 'Noto Sans', system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--text);font:400 17px/1.55 var(--sans)}
+a{color:var(--green)}
+button,input,textarea{font:inherit}
+:focus-visible{outline:3px solid var(--turmeric);outline-offset:2px}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+header h1{margin:0;font:700 30px/1.1 var(--sans);color:var(--ink);letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);font-size:16px}
+header .hi{font-family:var(--hand);color:var(--green);font-size:19px}
+
+.grid{display:grid;gap:22px;grid-template-columns:1fr}
+@media (min-width:960px){.grid{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}
+  .right{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}}
+
+/* conversation */
+.thread{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.msg{max-width:92%;padding:12px 15px;border-radius:14px;white-space:pre-wrap}
+.msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--sheet);border:1px solid var(--rule);border-bottom-left-radius:4px}
+.msg.bot.urgent{border-color:var(--red);background:var(--red-soft)}
+.empty{color:var(--muted);font-size:16px;margin:4px 0 14px}
+.samples{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.sample{text-align:left;background:var(--sheet);border:1px dashed var(--ink-soft);color:var(--ink);border-radius:10px;padding:10px 12px;cursor:pointer}
+.sample:hover{background:#EEF3F7}
+.sample small{display:block;color:var(--muted);font-size:13px}
+
+.composer{background:var(--sheet);border:1.5px solid var(--ink);border-radius:14px;padding:10px}
+.composer textarea{width:100%;min-height:92px;border:0;resize:vertical;outline:none;background:transparent;color:var(--text)}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tool-btn{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 12px;cursor:pointer;font-size:15px}
+.tool-btn[aria-pressed="true"]{background:var(--red);color:#fff;border-color:var(--red)}
+.send{margin-left:auto;background:var(--green);color:#fff;border:0;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer}
+.send:disabled{opacity:.55;cursor:wait}
+select.tool-btn{appearance:auto}
+.attach-name{font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+
+/* the OPD parchi */
+.parchi{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;position:relative;
+  padding:18px 20px 22px 44px;box-shadow:0 1px 0 var(--rule)}
+.parchi::before{content:"";position:absolute;left:28px;top:0;bottom:0;width:1.5px;background:#E7B7B2}
+.parchi-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:12px}
+.parchi-head h2{margin:0;font:700 21px/1.2 var(--sans);color:var(--ink)}
+.parchi-head span{font-family:var(--hand);color:var(--ink-soft);font-size:16px}
+.placeholder{font-family:var(--hand);color:var(--ink-soft);font-size:20px;line-height:32px;padding:4px 0}
+.saving{font-family:var(--hand);color:var(--green);font-size:30px;line-height:1.2;display:inline-block;
+  padding:10px 24px 12px;border:2.5px solid var(--green);border-radius:50% 46% 52% 44% / 60% 50% 56% 48%;transform:rotate(-2deg);margin:4px 0 12px;background:#fff}
+.saving small{display:block;font-size:16px;color:var(--ink-soft)}
+.alert{background:var(--red-soft);border-left:5px solid var(--red);padding:12px 14px;border-radius:4px;margin-bottom:14px}
+.alert strong{color:var(--red)}
+.sec{margin:18px 0 0;padding-top:14px;border-top:1px dashed var(--rule)}
+.sec h3{margin:0 0 6px;font:700 17px/1.3 var(--sans);color:var(--ink)}
+.sec ul{margin:0;padding-left:18px}
+.sec li{margin:3px 0}
+.pill{display:inline-block;font-size:13px;padding:1px 9px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:500}
+.pill.warn{background:var(--turmeric-soft);color:#8A5A00}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;background:#fff}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{color:var(--ink-soft);font-weight:500}
+td.g{color:var(--green);font-weight:700}
+.downloads{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.dl{display:inline-block;text-decoration:none;background:var(--ink);color:#fff;padding:9px 14px;border-radius:10px;font-weight:500}
+.fine{font-size:13px;color:var(--muted);margin-top:14px}
+
+/* emergency routing */
+.em{background:var(--red-soft);border:2px solid var(--red);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.em h3{margin:0 0 4px;color:var(--red);font:700 22px/1.25 var(--sans)}
+.em .go{font-size:20px;font-weight:700;color:var(--text);margin:6px 0 2px}
+.em .meta{color:var(--muted);font-size:15px;margin:0 0 10px}
+.em-actions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.btn{display:inline-block;text-decoration:none;border-radius:10px;padding:10px 16px;font-weight:700;border:0;cursor:pointer;font-size:16px}
+.btn.red{background:var(--red);color:#fff}.btn.ink{background:var(--ink);color:#fff}.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.em iframe{width:100%;height:200px;border:0;border-radius:8px;margin-top:6px;background:#eee}
+.em ul{margin:6px 0 0;padding-left:18px;font-size:15px}
+.em .rights{font-size:14px;color:var(--text);margin-top:10px}
+.after{font:700 18px/1.3 var(--sans);color:var(--green);margin:18px 0 0}
+.hosp li{margin:6px 0}
+.hosp .meta{font-size:14px;color:var(--muted)}
+.hosp a{font-size:14px;font-weight:500}
+.src{font-size:12px;color:var(--muted)}
+.tool-btn.on{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.tool-btn.pulse{border-color:var(--red);color:var(--red)}
+
+/* agent trace */
+.trace{margin-top:22px}
+.trace h2{font:700 18px/1.2 var(--sans);color:var(--ink);margin:0 0 4px}
+.trace p.sub{margin:0 0 10px;color:var(--muted);font-size:14px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{position:relative;padding:4px 0 12px 44px;counter-increment:s}
+.steps li::before{content:counter(s);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;
+  display:grid;place-items:center;font-size:14px;font-weight:700;background:var(--sheet);border:1.5px solid var(--ink);color:var(--ink)}
+.steps li::after{content:"";position:absolute;left:13.5px;top:34px;bottom:0;width:1.5px;background:var(--rule)}
+.steps li:last-child::after{display:none}
+.phase{font-size:12px;font-weight:700;color:var(--green);margin-right:6px}
+.phase.reason{color:#8A5A00}.phase.act{color:var(--red)}.phase.plan{color:var(--ink)}
+.steps .t{font-weight:500}
+.steps .d{display:block;color:var(--muted);font-size:14px;word-break:break-word}
+.steps code{font-size:13px;background:#EEF3F7;padding:0 5px;border-radius:4px}
+.engine{font-size:13px;color:var(--muted)}
+
+@media (prefers-reduced-motion:no-preference){
+  .parchi.fresh .saving{animation:circle .7s ease-out}
+  @keyframes circle{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>IlaajSaathi</h1>
+    <p>Tell it the health problem, where you are and your budget. It finds the safest way to get treated at minimal cost.</p>
+    <span class="hi">किफ़ायती, सुरक्षित इलाज का रास्ता</span>
+  </header>
+
+  <div class="grid">
+    <section class="left" aria-label="Conversation">
+      <div id="thread" class="thread" aria-live="polite"></div>
+      <div id="intro">
+        <p class="empty">Speak or type in Hindi or English. Try one of these:</p>
+        <div class="samples">
+          <button class="sample" data-text="My father is 58. He gets chest pain while walking for 3 months. Angiography showed a blockage and a private hospital quoted 3 lakh for angioplasty. We can spend only 30,000. We live in Delhi. He takes Atorva and Clopilet.">Heart blockage, angioplasty quoted Rs 3 lakh<small>English, Delhi, Rs 30,000 budget</small></button>
+          <button class="sample" data-text="मेरे पिताजी 72 साल के हैं, दोनों घुटने बहुत खराब हैं। डॉक्टर ने घुटना बदलने का ऑपरेशन बोला, 4 लाख बताया। हम पटना में हैं, 50000 रुपये तक खर्च कर सकते हैं।">घुटना बदलने का ऑपरेशन, 4 लाख बताया<small>Hindi, Patna, 72 years old</small></button>
+          <button class="sample" data-urgent="1" data-text="My uncle has severe chest pain right now, he is sweating and the pain is going to his left arm.">Chest pain right now with sweating<small>Emergency: routes to a hospital with a cath lab</small></button>
+        </div>
+      </div>
+      <div class="composer">
+        <label for="msg" class="note" style="margin:0 0 4px;display:block">Your problem, city and budget</label>
+        <textarea id="msg" placeholder="e.g. Papa ko dil ki blockage hai, angioplasty ke 3 lakh bataye, Lucknow, budget 30,000"></textarea>
+        <div class="bar">
+          <button class="tool-btn" id="mic" type="button" aria-pressed="false">🎤 Speak</button>
+          <select class="tool-btn" id="lang" aria-label="Speech language">
+            <option value="hi-IN">Hindi</option><option value="en-IN">English</option>
+          </select>
+          <button class="tool-btn" id="locBtn" type="button" aria-pressed="false">📍 Use my location</button>
+          <button class="tool-btn" id="photoBtn" type="button">📷 Prescription</button>
+          <input id="photo" type="file" accept="image/*" hidden>
+          <span id="attach" class="attach-name"></span>
+          <button class="send" id="send" type="button">Get my plan</button>
+        </div>
+      </div>
+      <p class="note">IlaajSaathi does not diagnose or prescribe. In an emergency, call <a href="tel:108">108</a>.</p>
+    </section>
+
+    <section class="right" aria-label="Your treatment plan">
+      <div id="parchi" class="parchi">
+        <div class="parchi-head"><h2>Your treatment plan</h2><span id="pdate"></span></div>
+        <div id="plan"><p class="placeholder">Your plan appears here once you describe the problem.</p></div>
+      </div>
+      <div class="trace">
+        <h2>How the agent worked</h2>
+        <p class="sub">Understand, reason, plan, use tools, act, deliver. <span id="engine" class="engine"></span></p>
+        <ol id="steps" class="steps"></ol>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let sessionId = null, image = null, coords = null, lastNeed = null;
+$('#pdate').textContent = new Date().toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+
+function bubble(text, who, cls=''){
+  const d = document.createElement('div');
+  d.className = `msg ${who} ${cls}`; d.textContent = text;
+  $('#thread').appendChild(d); d.scrollIntoView({behavior:'smooth', block:'nearest'});
+  return d;
+}
+
+function getLocation(timeoutMs = 8000){
+  return new Promise(resolve => {
+    if(!navigator.geolocation) return resolve(null);
+    navigator.geolocation.getCurrentPosition(
+      p => { coords = {lat:p.coords.latitude, lng:p.coords.longitude};
+             const b = $('#locBtn'); b.classList.add('on'); b.classList.remove('pulse'); b.textContent = '📍 Location shared';
+             resolve(coords); },
+      () => resolve(null), {enableHighAccuracy:true, timeout:timeoutMs, maximumAge:60000});
+  });
+}
+
+async function send(text){
+  text = (text ?? $('#msg').value).trim();
+  if(!text && !image) return;
+  $('#intro').hidden = true;
+  bubble(text || '(prescription photo)', 'user');
+  $('#msg').value = '';
+  const btn = $('#send'); btn.disabled = true; btn.textContent = 'Working…';
+  const wait = bubble('Checking safety, nearby hospitals, schemes and costs…', 'bot');
+  try{
+    const body = {message:text, session_id:sessionId};
+    if(coords){ body.lat = coords.lat; body.lng = coords.lng; }
+    if(image){ body.image_b64 = image.data; body.image_type = image.type; }
+    const r = await fetch('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.error || 'The agent could not answer.');
+    sessionId = j.session_id; lastNeed = j.need;
+    wait.textContent = j.reply;
+    if(j.status === 'urgent') wait.classList.add('urgent');
+    $('#locBtn').classList.toggle('pulse', j.need === 'location' && !coords);
+    renderTrace(j); if(j.plan) renderPlan(j);
+  }catch(e){
+    wait.textContent = `Couldn't reach the agent: ${e.message}. Check the server is running and try again.`;
+  }finally{
+    btn.disabled = false; btn.textContent = 'Get my plan'; image = null; $('#attach').textContent = '';
+  }
+}
+
+async function shareLocationAndContinue(){
+  const c = await getLocation();
+  if(!c){ bubble('Location is blocked. Type your city or area instead, for example "Lucknow" or "Lajpat Nagar, Delhi".', 'bot'); return; }
+  if(sessionId) send('I have shared my location.');
+}
+
+function renderTrace(j){
+  const e = j.engine || {};
+  $('#engine').textContent = `Engine: ${e.llm === 'rules' ? 'offline rules' : e.llm}, maps: ${e.maps}`;
+  $('#steps').innerHTML = j.trace.map(t => `<li><span class="phase ${t.phase}">${esc(t.phase)}</span><span class="t">${esc(t.title)}</span>
+    ${t.tool ? ` <code>${esc(t.tool)}</code>` : ''}<span class="d">${esc(t.detail)}${t.ms!=null ? ` · ${t.ms} ms` : ''}</span></li>`).join('');
+}
+
+function inr(n){ return 'Rs ' + Number(n).toLocaleString('en-IN'); }
+const SRC = {google:'Google Maps', curated:'curated govt list', openstreetmap:'OpenStreetMap'};
+function eta(h){
+  if(h.minutes == null) return '';
+  const approx = h.time_source === 'google' ? '' : '~';
+  return `${approx}${h.minutes} min${h.km ? `, ${approx}${h.km} km` : ''}`;
+}
+function osmEmbed(h){
+  if(h.lat == null) return '';
+  const d = 0.012, b = [h.lng-d, h.lat-d, h.lng+d, h.lat+d].join(',');
+  return `<iframe title="Map of ${esc(h.name)}" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${b}&layer=mapnik&marker=${h.lat},${h.lng}"></iframe>`;
+}
+
+function renderEmergency(rf, em){
+  const out = [];
+  out.push(`<div class="em" role="alert"><h3>Emergency: get care now</h3>`);
+  out.push(`<p class="meta">${rf.red_flags.filter(f=>f.urgent).map(f=>esc(f.label)).join('; ')}</p>`);
+  if(em && em.best){
+    const b = em.best;
+    const known = (b.tier || 0) === 0;
+    out.push(known
+      ? `<p class="go">Go to ${esc(b.name)}</p><p class="meta">${esc(em.facility_label)}${eta(b) ? ' · ' + eta(b) : ''} · ${esc(b.address||'')}${b.open_now===true?' · open now':''}</p>`
+      : `<p class="go">Call 108 first. Nearest large hospital: ${esc(b.name)}</p><p class="meta">Needs ${esc(em.facility_label)}, not confirmed here${eta(b) ? ' · ' + eta(b) : ''}${b.address ? ' · ' + esc(b.address) : ''}</p>`);
+    out.push(`<div class="em-actions"><a class="btn red" href="tel:108">Call 108 ambulance</a><a class="btn ink" href="${esc(b.directions)}" target="_blank" rel="noopener">Directions</a>${b.phone?`<a class="btn ghost" href="tel:${esc(b.phone.replace(/\s/g,''))}">Call hospital</a>`:''}</div>`);
+    if(b.verify) out.push(`<p class="meta">${esc(b.verify)}</p>`);
+    out.push(osmEmbed(b));
+    const rest = (em.hospitals||[]).slice(1);
+    if(rest.length) out.push(`<p class="meta" style="margin-top:10px">Other options nearby:</p><ul>${rest.map(h=>`<li>${esc(h.name)} (${eta(h)}) ${h.type==='Government'?'<span class="pill">Government</span>':''} <a href="${esc(h.directions)}" target="_blank" rel="noopener">Directions</a></li>`).join('')}</ul>`);
+  } else {
+    out.push(`<div class="em-actions"><a class="btn red" href="tel:108">Call 108 ambulance</a><button class="btn ink" type="button" id="emLoc">Share my location</button></div>`);
+    out.push(`<p class="meta">Share your location or type your city, and I'll find the nearest hospital with ${esc((em||rf).facility_label||'emergency care')}.</p>`);
+  }
+  out.push(`<p class="rights">${esc((em||{}).rights || 'Hospitals must give emergency first aid and stabilisation. Do not delay care over money.')}</p></div>`);
+  out.push(`<p class="after">After the emergency: affordable options</p>`);
+  return out.join('');
+}
+
+function renderPlan(j){
+  const p = j.plan, out = [];
+  const rf = p.red_flag_check || {};
+  if(rf.urgent){
+    out.push(renderEmergency(rf, p.route_emergency));
+  } else if(rf.red_flags && rf.red_flags.length){
+    out.push(`<div class="alert"><strong>Tell a doctor soon:</strong> ${rf.red_flags.map(f=>esc(f.label)).join('; ')}. ${esc(rf.advice)}</div>`);
+  }
+  if(j.estimated_total_saving > 0 && !rf.urgent){
+    out.push(`<div class="saving">${inr(j.estimated_total_saving)} could be saved<small>with government care and generic medicines</small></div>`);
+  }
+  if(p.teleconsult_options){
+    out.push(sec('Step 1: Get a free doctor opinion', `<ul>${p.teleconsult_options.options.map(o=>
+      `<li><strong>${esc(o.name)}</strong> <span class="pill">${esc(o.cost)}</span><br>${esc(o.how)}</li>`).join('')}</ul>`));
+  }
+  if(p.find_hospitals){
+    const h = p.find_hospitals;
+    out.push(sec(`Nearest government and affordable hospitals${h.origin ? ' near ' + esc(h.origin) : ''}`, h.hospitals.length ?
+      `<ul class="hosp">${h.hospitals.map(x=>`<li><strong>${esc(x.name)}</strong> <span class="pill ${x.type==='Government'?'':'warn'}">${esc(x.type)}</span>
+        <br><span class="meta">${eta(x) ? eta(x) + ' · ' : ''}${esc(x.address||'')}${x.departments && x.departments.length ? ' · ' + esc(x.departments.join(', ')) : ''}${x.fee ? ' · ' + esc(x.fee) : ''}</span>
+        <br><a href="${esc(x.directions)}" target="_blank" rel="noopener">Directions</a> <span class="src">source: ${esc(SRC[x.source]||x.source)}</span></li>`).join('')}</ul><p class="fine">${esc(h.note)}</p>`
+      : `<p>${esc(h.note)}</p>${coords ? '' : '<button class="btn ghost" type="button" id="hospLoc">Use my location</button>'}`));
+  }
+  if(p.check_pmjay_eligibility){
+    const e = p.check_pmjay_eligibility, lab = {likely:'Likely eligible', possible:'Possibly eligible', unknown:'Check eligibility'}[e.status];
+    out.push(sec('Ayushman Bharat cover', `<span class="pill ${e.status==='likely'?'':'warn'}">${lab}</span> ${esc(e.cover)}
+      <ul>${e.reasons.map(r=>`<li>${esc(r)}</li>`).join('')}<li>How to check: ${esc(e.how_to_check)}</li></ul>`));
+  }
+  if(p.estimate_costs && p.estimate_costs.items.length){
+    const c = p.estimate_costs;
+    out.push(sec('Cost: government vs private', `<div class="tbl-wrap"><table><thead><tr><th>Treatment</th><th>Govt</th><th>Private</th></tr></thead><tbody>
+      ${c.items.map(i=>`<tr><td>${esc(i.name)}${i.surgery?' <span class="pill warn">procedure</span>':''}</td><td class="g">${esc(i.govt)}</td><td>${esc(i.private)}</td></tr>`).join('')}
+      </tbody></table></div><p class="fine">${esc(c.disclaimer)}</p>`));
+  }
+  if(p.find_generics && p.find_generics.matches.length){
+    const g = p.find_generics;
+    out.push(sec('Lower-cost generic medicines', `<div class="tbl-wrap"><table><thead><tr><th>Your medicine</th><th>Same salt</th><th>Brand</th><th>Jan Aushadhi</th></tr></thead><tbody>
+      ${g.matches.map(m=>`<tr><td>${esc(m.asked)}</td><td>${esc(m.salt)} ${esc(m.strength)}</td><td>${inr(m.brand_price)}</td><td class="g">${inr(m.generic_price)}</td></tr>`).join('')}
+      </tbody></table></div><p class="fine">${esc(g.where)}. ${esc(g.disclaimer)}</p>`));
+  }
+  if(p.second_opinion_questions){
+    out.push(sec('Questions to ask the doctor', `<ol>${p.second_opinion_questions.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`));
+  }
+  const dls = [];
+  if(p.make_doctor_summary) dls.push(`<a class="dl" href="/files/${esc(p.make_doctor_summary.file)}" target="_blank" rel="noopener">Download doctor summary (PDF)</a>`);
+  if(p.create_reminder) dls.push(`<a class="dl" href="/files/${esc(p.create_reminder.file)}">Add reminder: ${esc(p.create_reminder.when)}</a>`);
+  if(dls.length) out.push(sec('Done for you', `<div class="downloads">${dls.join('')}</div>`));
+  out.push(`<p class="fine">Costs are indicative planning ranges. IlaajSaathi does not diagnose; a doctor decides treatment.</p>`);
+  $('#plan').innerHTML = out.join('');
+  ['#emLoc','#hospLoc'].forEach(id => { const b = $(id); if(b) b.addEventListener('click', shareLocationAndContinue); });
+  const pc = $('#parchi'); pc.classList.remove('fresh'); void pc.offsetWidth; pc.classList.add('fresh');
+  if(window.innerWidth < 960) pc.scrollIntoView({behavior:'smooth'});
+}
+function sec(title, html){ return `<div class="sec"><h3>${title}</h3>${html}</div>`; }
+
+document.querySelectorAll('.sample').forEach(b => b.addEventListener('click', async () => {
+  if(b.dataset.urgent && !coords) await getLocation(5000);  // emergencies: try to get location first, don't wait long
+  send(b.dataset.text);
+}));
+$('#locBtn').addEventListener('click', async () => {
+  const c = await getLocation();
+  if(!c) return bubble('Location is blocked. Type your city or area instead.', 'bot');
+  if(sessionId && (lastNeed === 'location')) send('I have shared my location.');
+});
+$('#send').addEventListener('click', () => send());
+$('#msg').addEventListener('keydown', e => { if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); });
+
+// Prescription photo
+$('#photoBtn').addEventListener('click', () => $('#photo').click());
+$('#photo').addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => { image = {data: r.result.split(',')[1], type: f.type || 'image/jpeg'}; $('#attach').textContent = f.name + ' attached'; };
+  r.readAsDataURL(f);
+});
+
+// Voice input (browser speech recognition; works in Chrome / Android)
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(!SR){ $('#mic').disabled = true; $('#mic').title = 'Voice input needs Chrome'; }
+let rec = null;
+$('#mic').addEventListener('click', () => {
+  if(!SR) return;
+  if(rec){ rec.stop(); return; }
+  rec = new SR(); rec.lang = $('#lang').value; rec.interimResults = true; rec.continuous = true;
+  const base = $('#msg').value ? $('#msg').value + ' ' : '';
+  rec.onresult = ev => { $('#msg').value = base + Array.from(ev.results).map(r => r[0].transcript).join(' '); };
+  rec.onend = () => { rec = null; $('#mic').setAttribute('aria-pressed','false'); $('#mic').textContent = '🎤 Speak'; };
+  rec.start(); $('#mic').setAttribute('aria-pressed','true'); $('#mic').textContent = '■ Stop';
+});
+</script>
+</body>
+</html>
