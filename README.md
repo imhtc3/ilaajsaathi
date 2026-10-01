@@ -5,7 +5,7 @@ A health agent that helps people in India find the safest way to get treated at 
 Built for the BharatAgentic Hackathon (aiKart), HealthTech track.
 
 **Live demo:** https://ilaajsaathi.onrender.com
-**API:** `POST https://ilaajsaathi.onrender.com/invoke`
+
 
 (It's on Render's free plan, so the first load after a while can take a minute to wake up.)
 
@@ -75,69 +75,7 @@ It never diagnoses, never prescribes and never tells anyone to stop a medicine.
 - Browser APIs for voice input (Hindi/English) and location
 - Docker, deployed on Render
 
-## Running it
 
-You need Python 3.10 or newer.
-
-```bash
-pip install -r requirements.txt
-python -m app.server
-```
-
-Open http://localhost:8000. It works straight away without any keys.
-
-To run the tests (no keys or internet needed):
-
-```bash
-python -m unittest discover tests
-```
-
-### Optional keys
-
-Set these as environment variables before starting the server (or in Render's Environment tab):
-
-```bash
-# LLM, for example Gemini (free tier)
-OPENAI_API_KEY=your_key
-OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
-LLM_MODEL=gemini-2.5-flash
-
-# or Claude
-ANTHROPIC_API_KEY=your_key
-
-# Google Maps, only if you want it. OpenStreetMap is used otherwise
-GOOGLE_MAPS_API_KEY=your_key
-```
-
-The `OPENAI_` names are just because Gemini, Groq and others all accept the same request format. With the base URL above, everything goes to Google, nothing goes to OpenAI.
-
-You can check what's active at `/api/health`.
-
-### Docker
-
-```bash
-docker build -t ilaajsaathi .
-docker run -p 8000:8000 ilaajsaathi
-```
-
-## API
-
-```
-POST /invoke
-```
-
-```json
-{
-  "input": "Severe chest pain right now with sweating",
-  "lat": 28.60,
-  "lng": 77.22,
-  "session_id": "optional, send it back to continue the conversation"
-}
-```
-
-Returns `output` (the reply), `status` (`need_info`, `plan_ready` or `urgent`), `need` (what's missing, if anything), `plan` (results from every tool), `trace` (every step) and `session_id`.
-
-Other routes: `POST /api/chat` (same thing, used by the web page), `GET /api/health`, `GET /files/<name>` for the generated PDF and reminder.
 
 ## Project structure
 
